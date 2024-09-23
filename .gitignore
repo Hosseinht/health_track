@@ -5,7 +5,10 @@ __pycache__/
 
 # C extensions
 *.so
-
+.idea
+.env
+.ruff_cache
+.venv
 # Distribution / packaging
 .Python
 build/
