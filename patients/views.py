@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from patients.models import Patient
+from patients.models import Address, Patient
 
 from .serializers import (PatientCreateSerializer, PatientDetailSerializer,
                           PatientListSerializer, PatientUpdateSerializer)
@@ -36,6 +36,22 @@ class PatientCreateView(generics.CreateAPIView):
 
     queryset = Patient.objects.all()
     serializer_class = PatientCreateSerializer
+
+    def perform_create(self, serializer):
+        """
+        Address is a nested serializer in the PatientCreateSerializer. to create a new patient
+        we also need to manage the patient address and add an address for the patient.
+        """
+        patient_data = serializer.validated_data
+        address_data = patient_data.pop("address", None)
+
+        if address_data:
+            # Address needs to be created separately, so we remove the address from input data
+            # and create an address then add it to the patient
+            address = Address.objects.create(**address_data)
+            patient_data["address"] = address
+
+        serializer.save(**patient_data)
 
 
 class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -73,13 +89,8 @@ class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         """
-        Override the update method to ensure that the response uses the correct serializer.
-
-        By default, the update method returns data using the PatientUpdateSerializer, which
-        excludes certain fields such as 'full_name' and 'age'. To address this, we use the
-        PatientUpdateSerializer to handle the update process, but after the update, we return
-        the full patient details in the response using the PatientDetailSerializer. This ensures
-        that the response includes all relevant fields.
+        Because address is a nested serializer in the PatientUpdateSerializer we need to override the update
+        method and manage the address update
         """
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
@@ -87,10 +98,23 @@ class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
             instance, data=request.data, partial=partial
         )
 
-        # Validate and update the patient
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        patient_data = serializer.validated_data
+        address_data = patient_data.pop("address", None)
 
-        # Return the full details with PatientDetailSerializer
+        # Update the address (if provided)
+        if address_data:
+            # here we use .items() to get a list of key values in the serialized data(address)
+            # and then use setattr to set these key(attr) value to the model instance(address)
+            for attr, value in address_data.items():
+                setattr(instance.address, attr, value)
+            instance.address.save()
+
+        # Update the patient instance fields
+        for attr, value in patient_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
         detail_serializer = PatientDetailSerializer(instance)
         return Response(detail_serializer.data, status=status.HTTP_200_OK)

@@ -1,6 +1,21 @@
+from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 
-from patients.models import Patient
+from patients.models import Address, Patient
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    country = CountryField()
+
+    class Meta:
+        model = Address
+        fields = [
+            "address_one",
+            "address_two",
+            "country",
+            "city",
+            "postal_code",
+        ]
 
 
 class PatientListSerializer(serializers.ModelSerializer):
@@ -19,6 +34,7 @@ class PatientListSerializer(serializers.ModelSerializer):
 
 class PatientCreateSerializer(serializers.ModelSerializer):
     clinician = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    address = AddressSerializer()
 
     class Meta:
         model = Patient
@@ -35,6 +51,7 @@ class PatientCreateSerializer(serializers.ModelSerializer):
 
 class PatientDetailSerializer(serializers.ModelSerializer):
     clinician = serializers.ReadOnlyField(source="clinician.email")
+    address = AddressSerializer()
 
     class Meta:
         model = Patient
@@ -53,6 +70,8 @@ class PatientDetailSerializer(serializers.ModelSerializer):
 
 
 class PatientUpdateSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+
     class Meta:
         model = Patient
         fields = [
