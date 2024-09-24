@@ -14,13 +14,7 @@ class AdminUser(UserAdmin):
         ),
         (
             "Personal Info",
-            {
-                "fields": (
-                    "email",
-                    "first_name",
-                    "last_name",
-                )
-            },
+            {"fields": ("email", "first_name", "last_name", "clinic_name")},
         ),
         (
             "Permissions",
@@ -57,6 +51,7 @@ class AdminUser(UserAdmin):
                     "email",
                     "first_name",
                     "last_name",
+                    "clinic_name",
                     "is_active",
                     "is_staff",
                     "is_superuser",
@@ -64,7 +59,8 @@ class AdminUser(UserAdmin):
             },
         ),
     )
-    list_display = ["email", "is_staff", "is_active"]
+    list_display = ["id", "email", "clinic_name", "is_staff", "is_active"]
+    list_display_links = ["id", "email", "clinic_name"]
 
 
 admin.site.register(User, AdminUser)

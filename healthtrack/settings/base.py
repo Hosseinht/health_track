@@ -1,3 +1,4 @@
+from datetime import timedelta
 from os import path
 from pathlib import Path
 
@@ -19,13 +20,12 @@ LOCAL_APPS = [
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "django_countries",
     "phonenumber_field",
     "django_filters",
-    "corsheaders",
     "drf_spectacular",
     "debug_toolbar",
     "djoser",
-
 ]
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -112,3 +112,24 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=50),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+    "َACCESS_TOKEN_NAME": "access",
+    "REFRESH_TOKEN_NAME": "refresh",
+}
+
+DJOSER = {
+    "PASSWORD_RESET_CONFIRM_URL": "password-reset/{uid}/{token}",
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "activation/{uid}/{token}",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "PASSWORD_RESET_CONFIRM_RETYPE": True,
+}
