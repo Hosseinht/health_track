@@ -16,6 +16,7 @@ load_dotenv(env_file)
 # Application definition
 LOCAL_APPS = [
     "users",
+    "patients",
 ]
 
 THIRD_PARTY_APPS = [
