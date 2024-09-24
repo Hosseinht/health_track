@@ -3,6 +3,7 @@ from datetime import date
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+from django.utils.text import Truncator
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -84,3 +85,19 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f"{self.patient} - {self.assessment_type}"
+
+
+class Question(models.Model):
+    assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE)
+    question = models.TextField()
+
+    def __str__(self):
+        return Truncator(self.question).words(10, truncate="...")
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.TextField()
+
+    def __str__(self):
+        return Truncator(self.answer).words(10, truncate="...")
