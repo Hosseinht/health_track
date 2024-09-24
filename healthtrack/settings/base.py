@@ -27,6 +27,7 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "debug_toolbar",
     "djoser",
+    "nested_admin",
 ]
 INSTALLED_APPS = [
     "django.contrib.admin",

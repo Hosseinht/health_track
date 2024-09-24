@@ -12,10 +12,13 @@ User = get_user_model()
 
 class Address(models.Model):
     address_one = models.CharField(max_length=400)
-    address_two = models.CharField(max_length=400)
+    address_two = models.CharField(max_length=400, null=True, blank=True)
     country = CountryField(null=True, blank=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     postal_code = models.CharField(max_length=30, blank=True, null=True)
+
+    def __str__(self):
+        return Truncator(self.address_one).words(10, truncate="...")
 
 
 class Patient(models.Model):
@@ -96,7 +99,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.OneToOneField(Question, on_delete=models.CASCADE)
     answer = models.TextField()
 
     def __str__(self):
