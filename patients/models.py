@@ -48,6 +48,12 @@ class Patient(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    def delete(self, *args, **kwargs):
+        address = self.address
+        if address:
+            address.delete()
+        super().delete(*args, **kwargs)
+
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
