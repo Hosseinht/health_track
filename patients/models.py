@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -88,11 +89,13 @@ class Assessment(models.Model):
     assessment_type = models.CharField(max_length=50, choices=TYPES.choices)
     assessment_date = models.DateTimeField(default=timezone.now)
     question = models.TextField(null=True, blank=True)
-    final_score = models.FloatField(
+    final_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10),
-        ]
+            MinValueValidator(Decimal("1.0")),
+            MaxValueValidator(Decimal("10.0")),
+        ],
     )
 
     def __str__(self):
