@@ -1,7 +1,7 @@
 from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 
-from patients.models import Address, Patient
+from patients.models import Address, Assessment, Patient
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -81,4 +81,41 @@ class PatientUpdateSerializer(serializers.ModelSerializer):
             "gender",
             "phone_number",
             "date_of_birth",
+        ]
+
+
+class AssessmentListSerializer(serializers.ModelSerializer):
+    patient = serializers.ReadOnlyField(source="patient.full_name")
+
+    class Meta:
+        model = Assessment
+        fields = [
+            "id",
+            "patient",
+            "assessment_type",
+            "assessment_date",
+            "final_score",
+        ]
+
+
+class AssessmentCreateSerializer(serializers.ModelSerializer):
+    clinician = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Assessment
+        fields = [
+            "clinician",
+            "assessment_type",
+            "assessment_date",
+            "final_score",
+        ]
+
+
+class AssessmentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
+        fields = [
+            "assessment_type",
+            "assessment_date",
+            "final_score",
         ]

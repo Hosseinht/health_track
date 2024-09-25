@@ -1,7 +1,6 @@
 from django.contrib import admin
-from nested_admin import NestedModelAdmin, NestedTabularInline  # noqa
 
-from .models import Address, Answer, Assessment, Patient, Question
+from .models import Address, Assessment, Patient
 
 
 class AddressAdmin(admin.ModelAdmin):
@@ -22,26 +21,12 @@ class PatientAdmin(admin.ModelAdmin):
     list_filter = ["first_name", "last_name", "gender"]
 
 
-class AnswerInline(NestedTabularInline):
-    model = Answer
-    extra = 1
-    max_num = 1
-
-
-class QuestionInline(NestedTabularInline):
-    model = Question
-    extra = 1
-    inlines = [AnswerInline]
-
-
-class AssessmentAdmin(NestedModelAdmin):
+class AssessmentAdmin(admin.ModelAdmin):
     list_display = ["clinician", "patient", "assessment_type", "final_score"]
     search_fields = ["clinician", "patient"]
     list_filter = ["clinician", "patient", "assessment_type"]
-    inlines = [QuestionInline]
 
 
-# Register your models here.
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Patient, PatientAdmin)
 admin.site.register(Assessment, AssessmentAdmin)
