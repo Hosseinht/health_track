@@ -1,11 +1,10 @@
-from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 
 from patients.models import Address, Assessment, Patient
 
 
 class AddressSerializer(serializers.ModelSerializer):
-    country = CountryField()
+    country = serializers.SerializerMethodField()
 
     class Meta:
         model = Address
@@ -16,6 +15,9 @@ class AddressSerializer(serializers.ModelSerializer):
             "city",
             "postal_code",
         ]
+
+    def get_country(self, obj):
+        return obj.country.name
 
 
 class PatientListSerializer(serializers.ModelSerializer):
@@ -33,6 +35,15 @@ class PatientListSerializer(serializers.ModelSerializer):
 
 
 class PatientCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating a new Patient instance.
+
+    The clinician field is a HiddenField that is not visible in the API request or response.
+    However, it is included in the serializer data. By setting the default value to CurrentUserDefault(),
+    the authenticated user (clinician) will be automatically assigned to the clinician
+    field when creating a new patient.
+    """
+
     clinician = serializers.HiddenField(default=serializers.CurrentUserDefault())
     address = AddressSerializer()
 
@@ -66,6 +77,7 @@ class PatientDetailSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "full_name",
             "age",
+            "created_at",
         ]
 
 

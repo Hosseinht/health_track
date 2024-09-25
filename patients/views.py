@@ -1,9 +1,12 @@
+from django.contrib.postgres.search import SearchVector
 from django.db import transaction
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
-from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotFound
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
+from .filters import AssessmentTypeFilter, GenderFilter
 from .models import Address, Assessment, Patient
 from .permissions import IsOwner
 from .serializers import (AssessmentCreateSerializer,
@@ -20,6 +23,12 @@ class PatientListCreateAPIView(generics.ListCreateAPIView):
     This view provides a list of patients for the authenticated clinician and allows creating new patients.
     """
 
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+
+    # search_fields = ["name", "pseudonym"]
+    ordering_fields = ["date_of_birth", "created_at"]
+    filterset_class = GenderFilter
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return PatientListSerializer
@@ -27,11 +36,25 @@ class PatientListCreateAPIView(generics.ListCreateAPIView):
             return PatientCreateSerializer
 
     def get_queryset(self):
+        """
+        Retrieves a queryset of patients associated with the current clinician.
+
+        If a search query is provided, the queryset is filtered to include only patients
+        whose names match the search query.
+        """
         clinician = self.request.user
-        return Patient.objects.filter(clinician=clinician).select_related(
+        query = self.request.query_params.get("search", None)
+        patient = Patient.objects.filter(clinician=clinician).select_related(
             "clinician",
             "address",
         )
+        if query:
+            search_patient = patient.annotate(
+                search=SearchVector("first_name", "last_name"),
+            ).filter(clinician=clinician, search=query)
+
+            return search_patient
+        return patient
 
     def perform_create(self, serializer):
         """
@@ -121,6 +144,16 @@ class AssessmentListAPIView(generics.ListAPIView):
     """
 
     serializer_class = AssessmentListSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+
+    # search_fields = ["name", "pseudonym"]
+    ordering_fields = [
+        "assessment_date",
+        "assessment_type",
+        "patient",
+        "final_score",
+    ]
+    filterset_class = AssessmentTypeFilter
 
     def get_queryset(self):
         return Assessment.objects.select_related("clinician", "patient").filter(
@@ -158,6 +191,11 @@ class AssessmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AssessmentDetailSerializer
 
     def get_object(self):
+        """
+        Returns the assessment instance for the given primary key.
+
+        It checks if the clinician has permission for this assessment and also if the assessment exists.
+        """
         pk = self.kwargs["pk"]
         try:
             assessment = Assessment.objects.select_related("clinician", "patient").get(
@@ -179,6 +217,15 @@ class PatientAssessmentListAPIView(generics.ListAPIView):
     """
 
     serializer_class = AssessmentListSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+
+    # search_fields = ["name", "pseudonym"]
+    ordering_fields = [
+        "assessment_date",
+        "assessment_type",
+        "final_score",
+    ]
+    filterset_class = AssessmentTypeFilter
 
     def get_queryset(self):
         clinician = self.request.user

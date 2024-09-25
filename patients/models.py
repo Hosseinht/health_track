@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.text import Truncator
@@ -18,7 +19,7 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=30, blank=True, null=True)
 
     def __str__(self):
-        return Truncator(self.address_one).words(10, truncate="...")
+        return self.address_one
 
 
 class Patient(models.Model):
@@ -87,7 +88,12 @@ class Assessment(models.Model):
     assessment_type = models.CharField(max_length=50, choices=TYPES.choices)
     assessment_date = models.DateTimeField(default=timezone.now)
     question = models.TextField(null=True, blank=True)
-    final_score = models.SmallIntegerField()
+    final_score = models.FloatField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(10),
+        ]
+    )
 
     def __str__(self):
         return f"{self.patient} - {self.assessment_type}"
