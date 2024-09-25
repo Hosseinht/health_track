@@ -11,7 +11,7 @@ multi-tenancy, filtering, pagination, sorting, and search functionality.
     - Django
     - Django Rest Framework
     - Djoser
-  
+
 * Database: PostgreSQL
 
 ## Project Setup Instructions
@@ -29,7 +29,7 @@ git clone https://github.com/Hosseinht/health_track.git
 3. Set up:
     - Create a virtual environment and activate it.
     - Install the required dependencies using `pip install -r requirements.txt`.
-    - In the backend folder, rename .env.example to .env and set all the environment variables
+    - In the backend folder, rename .env.example to .env
     - Configure the database settings in `settings/local.py`.
     - Apply the database migrations using `python manage.py migrate`.
     - Create a superuser using `python manage.py createsuperuser`
