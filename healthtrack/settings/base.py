@@ -27,7 +27,6 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "debug_toolbar",
     "djoser",
-    "nested_admin",
 ]
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -117,6 +116,7 @@ AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -137,4 +137,11 @@ DJOSER = {
     "ACTIVATION_URL": "activation/{uid}/{token}",
     "USER_CREATE_PASSWORD_RETYPE": True,
     "PASSWORD_RESET_CONFIRM_RETYPE": True,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Health Tracker",
+    "DESCRIPTION": "Health Tracker is a patient assessment system. The app allow clinicians to"
+    "administer, track, and manage patient assessments",
+    "VERSION": "1.0.0",
 }

@@ -9,10 +9,15 @@ from rest_framework.response import Response
 from .filters import AssessmentTypeFilter, GenderFilter
 from .models import Address, Assessment, Patient
 from .permissions import IsOwner
-from .serializers import (AssessmentCreateSerializer,
-                          AssessmentDetailSerializer, AssessmentListSerializer,
-                          PatientCreateSerializer, PatientDetailSerializer,
-                          PatientListSerializer, PatientUpdateSerializer)
+from .serializers import (
+    AssessmentCreateSerializer,
+    AssessmentDetailSerializer,
+    AssessmentListSerializer,
+    PatientCreateSerializer,
+    PatientDetailSerializer,
+    PatientListSerializer,
+    PatientUpdateSerializer,
+)
 
 
 # Create your views here.
