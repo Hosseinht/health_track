@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-from django.utils.text import Truncator
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -47,12 +46,6 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
-    def delete(self, *args, **kwargs):
-        address = self.address
-        if address:
-            address.delete()
-        super().delete(*args, **kwargs)
 
     @property
     def full_name(self):
